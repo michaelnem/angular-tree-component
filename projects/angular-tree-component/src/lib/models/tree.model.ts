@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, TemplateRef } from '@angular/core';
 import { observable, computed, action, autorun, makeObservable } from 'mobx';
 import { Subscription } from 'rxjs';
 import { TreeNode } from './tree-node.model';
@@ -10,6 +10,7 @@ import { TREE_EVENTS } from '../constants/events';
 @Injectable()
 export class TreeModel implements ITreeModel, OnDestroy {
   static focusedTree = null;
+  treeNodeCollectionTemplateRef: TemplateRef<any>;
 
   options: TreeOptions = new TreeOptions();
   nodes: any[];

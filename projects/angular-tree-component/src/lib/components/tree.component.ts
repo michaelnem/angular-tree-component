@@ -1,4 +1,15 @@
-import { Component, ContentChild, EventEmitter, HostListener, Input, OnChanges, Output, TemplateRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  ContentChild,
+  EventEmitter,
+  HostListener,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import { TreeModel } from '../models/tree.model';
 import { TreeDraggedElement } from '../models/tree-dragged-element.model';
 import { TreeOptions } from '../models/tree-options.model';
@@ -34,9 +45,20 @@ import { TreeViewportComponent } from './tree-viewport.component';
               </tree-node-drop-slot>
           </div>
       </tree-viewport>
+      
+      <ng-template let-node="node" let-templates="templates" #treeNodeCollectionTemplate>
+        <tree-node-collection
+          *ngIf="node.children"
+          [nodes]="node.children"
+          [templates]="templates"
+          [treeModel]="node.treeModel"
+        >
+        </tree-node-collection>
+      </ng-template>
   `
 })
-export class TreeComponent implements OnChanges {
+export class TreeComponent implements OnInit, OnChanges {
+  @ViewChild('treeNodeCollectionTemplate', { static: true }) treeNodeCollectionTemplateRef: TemplateRef<any>;
   _nodes: any[];
   _options: TreeOptions;
 
@@ -82,9 +104,12 @@ export class TreeComponent implements OnChanges {
   constructor(
     public treeModel: TreeModel,
     public treeDraggedElement: TreeDraggedElement) {
-
     treeModel.eventNames.forEach((name) => this[name] = new EventEmitter());
     treeModel.subscribeToState((state) => this.stateChange.emit(state));
+  }
+
+  ngOnInit() {
+    this.treeModel.treeNodeCollectionTemplateRef = this.treeNodeCollectionTemplateRef;
   }
 
   @HostListener('body: keydown', ['$event'])

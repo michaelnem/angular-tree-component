@@ -1,5 +1,6 @@
-import { Component, Input, ViewEncapsulation } from '@angular/core';
+import { Component, Injector, Input, ViewEncapsulation } from '@angular/core';
 import { TreeNode } from '../models/tree-node.model';
+import { TreeModel } from '../models/tree.model';
 
 @Component({
   selector: 'tree-node-children',
@@ -17,13 +18,10 @@ import { TreeNode } from '../models/tree-node.model';
           enabled: node.options.animateExpand
         "
       >
-        <tree-node-collection
-          *ngIf="node.children"
-          [nodes]="node.children"
-          [templates]="templates"
-          [treeModel]="node.treeModel"
-        >
-        </tree-node-collection>
+        <ng-container [ngTemplateOutlet]="treeModel.treeNodeCollectionTemplateRef"
+                      [ngTemplateOutletContext]="{node: node, templates: templates}"
+                      [ngTemplateOutletInjector]="injector"
+        ></ng-container>
         <tree-loading-component
           [style.padding-left]="node.getNodePadding()"
           class="tree-node-loading"
@@ -38,4 +36,7 @@ import { TreeNode } from '../models/tree-node.model';
 export class TreeNodeChildrenComponent {
   @Input() node: TreeNode;
   @Input() templates: any;
+
+  constructor(public treeModel: TreeModel, public injector: Injector) {
+  }
 }
