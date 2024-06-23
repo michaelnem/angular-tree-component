@@ -68,3 +68,4 @@ testResults
 e2eResults
 
 e2e/dist
+.angular

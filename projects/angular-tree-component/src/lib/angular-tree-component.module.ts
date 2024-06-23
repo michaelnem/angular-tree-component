@@ -66,7 +66,6 @@ import { TreeAnimateOpenDirective } from './directives/tree-animate-open.directi
     TreeNodeWrapperComponent,
     TreeNodeCheckboxComponent,
     TreeAnimateOpenDirective,
-    TreeMobxAutorunDirective
   ],
   imports: [CommonModule],
   providers: []

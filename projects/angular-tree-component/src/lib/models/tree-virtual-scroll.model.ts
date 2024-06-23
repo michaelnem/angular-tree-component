@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { observable, computed, action, autorun, reaction } from 'mobx';
+import { observable, computed, action, autorun, reaction, makeObservable } from 'mobx';
 import { TreeModel } from './tree.model';
 import { TREE_EVENTS } from '../constants/events';
 
@@ -10,20 +10,31 @@ const Y_EPSILON = 150; // Minimum pixel change required to recalculate the rende
 export class TreeVirtualScroll {
   private _dispose: any;
 
-  @observable yBlocks = 0;
-  @observable x = 0;
-  @observable viewportHeight = null;
+  yBlocks = 0;
+  x = 0;
+  viewportHeight = null;
   viewport = null;
 
-  @computed get y() {
+  get y() {
     return this.yBlocks * Y_EPSILON;
   }
 
-  @computed get totalHeight() {
+  get totalHeight() {
     return this.treeModel.virtualRoot ? this.treeModel.virtualRoot.height : 0;
   }
 
   constructor(private treeModel: TreeModel) {
+    makeObservable(this, {
+      yBlocks: observable,
+      x: observable,
+      viewportHeight: observable,
+      y: computed,
+      totalHeight: computed,
+      _setYBlocks: action, // was private
+      recalcPositions: action,
+      setViewport: action,
+      scrollIntoView: action,
+    });
     treeModel.virtualScroll = this;
     this._dispose = [autorun(() => this.fixScroll())];
   }
@@ -49,11 +60,11 @@ export class TreeVirtualScroll {
     return this.treeModel.options.useVirtualScroll;
   }
 
-  @action private _setYBlocks(value) {
+  _setYBlocks(value) {
     this.yBlocks = value;
   }
 
-  @action recalcPositions() {
+  recalcPositions() {
     this.treeModel.virtualRoot.height = this._getPositionAfter(this.treeModel.getVisibleRoots(), 0);
   }
 
@@ -82,7 +93,7 @@ export class TreeVirtualScroll {
     this._dispose.forEach((d) => d());
   }
 
-  @action setViewport(viewport) {
+  setViewport(viewport) {
     Object.assign(this, {
       viewport,
       x: viewport.scrollLeft,
@@ -91,7 +102,7 @@ export class TreeVirtualScroll {
     });
   }
 
-  @action scrollIntoView(node, force, scrollToMiddle = true) {
+  scrollIntoView(node, force, scrollToMiddle = true) {
     if (node.options.scrollContainer) {
       const scrollContainer = node.options.scrollContainer;
       const scrollContainerHeight = scrollContainer.getBoundingClientRect().height;
